@@ -4,13 +4,13 @@ package com.ccj.client.android.analytics;
  * Created by chenchangjun on 18/2/8.
  */
 
- class EConstant {
+ public class EConstant {
 
     static volatile boolean SWITCH_OFF = false; //全局开关,用于在接口返回时,控制sdk是否启动
     static volatile boolean DEVELOP_MODE = true; //全局开关,开发模式切换
 
 
-    public static final String TAG = "JJEvent-->";
+    public static final String TAG = "UBT-Event";
 
 
 
@@ -24,25 +24,45 @@ package com.ccj.client.android.analytics;
     /**
      * 接口地址
      */
-    static    String COLLECT_URL = ""; //TODO 这里是要上传数据的接口
+    static String CLIENT_ID_URL =
+            "http://192.168.120.110:8080/ubt/api/client?appid=28765893&sig=2b4555d0dc9ed905e1802f007bd09e7478114be4&timestamp=1541663667&noncestr=cueedgaq&did=FCE05F90DF99483ABA8AAC9368C3B1BB";
+
+    public static String COLLECT_URL = "http://192.168.120.110:8080/ubt/api/event/list"; //TODO 这里是要上传数据的接口
+
+   static String JSON_BODY_1 = "{\n" +
+           "\t\"appId\" : \"com.aikucun.apptest\",\n" +
+           "    \"appVersion\" : \"2.4.6\",\n" +
+           "    \"deviceBrand\" : \"iPhone\",\n" +
+           "    \"deviceId\" : \"2974870C-BE7F-4240-B96D-5CE80479F987\",\n" +
+           "    \"deviceIdType\" : \"IDFA\",\n" +
+           "    \"deviceModel\" : \"iPhone\",\n" +
+           "    \"deviceType\" : \"iPhone (6)\",\n" +
+           "    \"download\" : \"AppStore\",\n" +
+           "    \"osType\" : \"iOS\",\n" +
+           "    \"osVersion\" : \"10.3.1\",\n" +
+           "    \"platform\" : \"iOS\",\n" +
+           "    \"screenX\" : 414,\n" +
+           "    \"screenY\" : 736,\n" +
+           "    \"sdkVersion\" : \"0.1\"\n" +
+           "\t}";
 
 
     /***********===================**time schedule**=============*********/
 
     /**
-     * 记录到达xx条,主动进行上传,默认100
+     * 记录到达xx条,主动进行上传,默认10
      */
-    static int  PUSH_CUT_NUMBER = 100;
+    static int  PUSH_CUT_NUMBER = 10;
 
     /**
-     * 上传间隔事件 分钟, 默认1分钟
+     * 上传间隔事件 单位：秒, 默认20秒
      */
-    static double PUSH_CUT_DATE = 1;
+    static double PUSH_CUT_DATE = 20;
 
     /**
-     * sid改变周期的标志:默认 15分钟
+     * sid改变周期的标志 单位：秒, 默认20秒
      */
-    static int PUSH_FINISH_DATE = 1;
+    static int PUSH_FINISH_DATE = 20;
 
 
 

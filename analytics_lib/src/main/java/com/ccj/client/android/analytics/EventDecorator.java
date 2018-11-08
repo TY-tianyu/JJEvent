@@ -152,7 +152,7 @@ class EventDecorator {
 
     static synchronized void pushEventByNum() {
         EventDecorator.addEventNum();
-        if (EventDecorator.getEventNum() >= EConstant.PUSH_CUT_NUMBER) { //当满足连续操作大于100条,就进行上传服务
+        if (EventDecorator.getEventNum() >= EConstant.PUSH_CUT_NUMBER) { //当满足连续操作大于10条,就进行上传服务
             //  JJEventService.pushEvent();
             EPushService.getSingleInstance().excutePushEvent();
             EventDecorator.clearEventNum();
@@ -251,7 +251,7 @@ class EventDecorator {
             dtOld = format.parse(oldDate);
 
             long offset = dtNew.getTime() - dtOld.getTime();
-            long standard = 60 * 1000 * minute;
+            long standard = 1000 * minute;
 
             if (offset > standard) {//不活动状态超过15分钟
                 return true;

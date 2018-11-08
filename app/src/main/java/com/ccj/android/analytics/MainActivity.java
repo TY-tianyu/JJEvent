@@ -14,6 +14,8 @@ import com.ccj.client.android.analytics.intercept.CookieFacade;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.ccj.client.android.analytics.EConstant.COLLECT_URL;
+
 public class MainActivity extends AppCompatActivity {
 
 
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                for (int k = 0; k < 40; k++) {
+                for (int k = 1; k <= 5; k++) {
                     //添加自定义参数ecp,ecp默认为null
                     Map ecp = new HashMap();
                     ecp.put("自定义key1", "自定义value1");
@@ -81,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
 
                 JJEventManager.Builder builder = new JJEventManager.Builder(getApplication()); //方式2
-                builder.setPushUrl("这里是请求的接口")//TODO 必填!!!!!!
+                builder.setPushUrl(COLLECT_URL)//TODO 必填!!!!!!
                         .setHostCookie("s test=cookie String;")//cookie(只会初始化调用一次,后续上传不会再调用)
                         .setDebug(true)//是否是debug
-                        .setSidPeriodMinutes(15)//sid改变周期
-                        .setPushLimitMinutes(1)//多少分钟 push一次
-                        .setPushLimitNum(100)//多少条 就主动进行push
+//                        .setSidPeriodMinutes(15)//sid改变周期
+//                        .setPushLimitMinutes(1)//多少分钟 push一次
+//                        .setPushLimitNum(10)//多少条 就主动进行push
                         .setCookieIntercept(new CookieFacade() {
                             @Override
                             public String getRequestCookies() { //宿主cookie通用参数 动态插入器(每次上传都会执行该方法)

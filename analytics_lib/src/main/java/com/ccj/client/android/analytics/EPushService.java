@@ -39,9 +39,9 @@ import static com.ccj.client.android.analytics.EConstant.SWITCH_OFF;
             timer=new Timer();
             timerHasCanceled=false;
         }
-        double periodD=  (EConstant.PUSH_CUT_DATE * 60 * 1000);
+        double periodD =  EConstant.PUSH_CUT_DATE * 1000;
         int period = Double.valueOf(periodD).intValue();
-        timer.schedule(task, 60 * 1000,period );//延时1分钟后执行,每次执行间隔PUSH_CUT_DATE分钟
+        timer.schedule(task, period, period );//延时20秒后执行,每次执行间隔PUSH_CUT_DATE分钟
     }
 
 

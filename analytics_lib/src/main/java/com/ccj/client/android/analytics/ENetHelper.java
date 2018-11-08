@@ -4,14 +4,17 @@ import android.content.Context;
 
 import com.ccj.client.android.analytics.bean.EventBean;
 import com.ccj.client.android.analytics.bean.ResultBean;
+import com.ccj.client.android.analytics.net.core.AuthFailureError;
 import com.ccj.client.android.analytics.net.core.Request;
 import com.ccj.client.android.analytics.net.core.RequestQueue;
 import com.ccj.client.android.analytics.net.core.Response;
 import com.ccj.client.android.analytics.net.core.Tools.EVolley;
 import com.ccj.client.android.analytics.net.core.VolleyError;
+import com.ccj.client.android.analytics.net.core.VolleyLog;
 import com.ccj.client.android.analytics.net.gson.EGson;
 import com.ccj.client.android.analytics.net.gson.GsonBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +100,7 @@ import static com.ccj.client.android.analytics.EConstant.TAG;
 
                         } else {
                             responseListener.onPushEorr(code);
-                            ELogger.logWrite(TAG, "--onPushEorr--");
+                            ELogger.logWrite(TAG, "--onPushError--");
 
                         }
 
@@ -122,6 +125,63 @@ import static com.ccj.client.android.analytics.EConstant.TAG;
 
     public static boolean getIsLoading() {
         return isLoading;
+    }
+
+
+    public void requestClientId(final String jsonBody) {
+
+        isLoading = true;
+
+        EGson EGson = new GsonBuilder().disableHtmlEscaping().create();
+        Map map = new HashMap();
+        map.put("data", jsonBody);
+        ELogger.logWrite(TAG, "push map-->" + map.toString());
+
+
+        EGsonRequest request = new EGsonRequest(Request.Method.POST, EConstant.CLIENT_ID_URL, ResultBean.class, null, map,
+                new Response.Listener<ResultBean>() {
+                    @Override
+                    public void onResponse(ResultBean response) {
+                        int code = response.getError_code();
+                        String msg = "";
+                        ELogger.logWrite(TAG, response.toString());
+
+                        if (code == 0) {
+                            responseListener.onPushSuccess();
+                            ELogger.logWrite(TAG, "--onPushSuccess--");
+
+                        } else {
+                            responseListener.onPushEorr(code);
+                            ELogger.logWrite(TAG, "--onPushError--");
+
+                        }
+
+                        isLoading = false;
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        ELogger.logWrite(TAG, "--onVolleyError--");
+                        responseListener.onPushFailed();
+                        isLoading = false;
+                    }
+                }
+        ){
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    return jsonBody == null ? null : jsonBody.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", jsonBody, "utf-8");
+                    return null;
+                }            }
+        };
+
+
+        queue.add(request);
+
     }
 
 
