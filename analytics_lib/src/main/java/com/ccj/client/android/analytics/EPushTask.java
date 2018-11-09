@@ -20,7 +20,7 @@ import java.util.List;
 
     protected static synchronized void pushEvent() {
 
-        ELogger.logError(EConstant.TAG, "timer schedule pushEvent is start-->" + cut_point_date);
+        ELogger.logWrite(EConstant.TAG, "timer schedule pushEvent is start-->" + cut_point_date);
         ELogger.logWrite(EConstant.TAG, " timer schedule pushEvent run  on thread-->"+Thread.currentThread().getName());
 
         Context context =JJEventManager.getContext();
