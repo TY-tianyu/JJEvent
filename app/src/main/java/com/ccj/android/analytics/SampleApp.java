@@ -1,30 +1,25 @@
 package com.ccj.android.analytics;
 
 import android.app.Application;
-import android.util.Log;
 
-import com.ccj.client.android.analytics.AppLifecycleListener;
-
-import static com.ccj.client.android.analytics.EConstant.TAG;
+import com.ccj.client.android.analytics.SampleLifecycleListener;
 
 public class SampleApp extends Application {
 
+    private SampleLifecycleListener sampleLifecycleListener;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        AppLifecycleListener.Companion.setupLifecycleListener(new AppLifecycleListener());
+        sampleLifecycleListener = new SampleLifecycleListener();
+
+        sampleLifecycleListener.setupLifecycleListener(sampleLifecycleListener);
 
     }
 
     @Override
     public void onTerminate() {
-        Log.d(TAG, "Lifecycle: onTerminate…");
         super.onTerminate();
-
-
     }
-
-
 }
