@@ -28,9 +28,15 @@ import java.util.List;
             ELogger.logWrite(EConstant.TAG, " JJEventManager.getContext() 为空,返回");
             return;
         }
+
+        //0. 判断client ID是否获取到
+        if (!JJEventManager.isClientIdValid()) {
+            ELogger.logWrite(EConstant.TAG, " timer schedule 判断是否获取到Client ID, 未获取, 返回");
+        }
+
         //1.判断网络状况是否良好
         if (!EDeviceUtils.isNetworkConnected(context)) {
-            ELogger.logWrite(EConstant.TAG, " timer schedule 判断网络状况是否良好,网络未连接,返回");
+            ELogger.logWrite(EConstant.TAG, " timer schedule 判断网络状况是否良好, 网络未连接, 返回");
 
             return;
         }

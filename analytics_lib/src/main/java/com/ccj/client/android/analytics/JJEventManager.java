@@ -1,23 +1,46 @@
 package com.ccj.client.android.analytics;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Process;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.ccj.client.android.analyticlib.BuildConfig;
+import com.ccj.client.android.analytics.bean.ClientIdRequestModel;
+import com.ccj.client.android.analytics.bean.ClientIdResponseModel;
+import com.ccj.client.android.analytics.enums.DeviceIdType;
 import com.ccj.client.android.analytics.exception.EventException;
 import com.ccj.client.android.analytics.intercept.CookieFacade;
+import com.ccj.client.android.analytics.net.core.AuthFailureError;
+import com.ccj.client.android.analytics.net.core.DefaultRetryPolicy;
+import com.ccj.client.android.analytics.net.core.Request;
+import com.ccj.client.android.analytics.net.core.RequestQueue;
+import com.ccj.client.android.analytics.net.core.Response;
+import com.ccj.client.android.analytics.net.core.Tools.EVolley;
+import com.ccj.client.android.analytics.net.core.VolleyError;
+import com.ccj.client.android.analytics.net.core.VolleyLog;
+import com.ccj.client.android.analytics.net.gson.EGson;
+import com.ccj.client.android.analytics.net.gson.GsonBuilder;
 import com.ccj.client.android.analytics.utils.EDeviceUtils;
 
 import org.apache.http.util.EncodingUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ccj.client.android.analytics.EConstant.TAG;
 
@@ -33,6 +56,14 @@ public final class JJEventManager {
 
     private static Application app;//全局持有app,保证sdk正常运转. app引用与进程同生命周期, 即 进程被销毁, jvm会随之销毁,app引用会随之销毁. so不存在内存泄漏.
     protected volatile static boolean hasInit = false;
+
+    public static String getClientId() {
+        return clientId;
+    }
+
+    public static boolean isClientIdValid() {
+        return !TextUtils.isEmpty(clientId);
+    }
 
     protected volatile static String clientId = null;
 
@@ -58,76 +89,124 @@ public final class JJEventManager {
      */
     public static void init(Application application, final String cookie, boolean isDebug) {
 
-            if (application==null){
-                ELogger.logWrite(EConstant.TAG, " JJEventManager application==null!");
-                return;
-            }
+        if (application == null) {
+            ELogger.logWrite(EConstant.TAG, " JJEventManager application==null!");
+            return;
+        }
 
-            //处理app拥有多个进程
-            String processName = EDeviceUtils.getProcessName(application, Process.myPid());
-            if (processName==null||!processName.equals(application.getPackageName()+"")) {
-                ELogger.logWrite(EConstant.TAG, " JJEventManager 初始化进程为:" + processName + ",不在主进程中!");
-                return;
-            }
-
-
-            if (hasInit) {
-                ELogger.logWrite(EConstant.TAG, " JJEventManager 已经初始化init(),请勿重复操作!!!!!!");
-                // throw new EventException("JJEventManager 已经初始化init()");
-                return;
-            }
+        //处理app拥有多个进程
+        String processName = EDeviceUtils.getProcessName(application, Process.myPid());
+        if (processName == null || !processName.equals(application.getPackageName() + "")) {
+            ELogger.logWrite(EConstant.TAG, " JJEventManager 初始化进程为:" + processName + ",不在主进程中!");
+            return;
+        }
 
 
-            hasInit = true;
-            EConstant.SWITCH_OFF = false;//开启一切统计事务
-            EConstant.DEVELOP_MODE = isDebug;//是否是开发模式
+        if (hasInit) {
+            ELogger.logWrite(EConstant.TAG, " JJEventManager 已经初始化init(),请勿重复操作!!!!!!");
+            // throw new EventException("JJEventManager 已经初始化init()");
+            return;
+        }
 
 
-            /****************进行初始化*************************/
-            app = application;
+        hasInit = true;
+        EConstant.SWITCH_OFF = false;//开启一切统计事务
+        EConstant.DEVELOP_MODE = isDebug;//是否是开发模式
 
-            clientId = readClientIdFromSD();
 
-            if (!TextUtils.isEmpty(clientId)) {
-                EPushService.startService();
+        /****************进行初始化*************************/
+        app = application;
 
-                EventDecorator.initCookie(cookie);
+        clientId = readClientIdFromSD();
 
-                ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
-                ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+        if (!TextUtils.isEmpty(clientId)) {
 
+            EPushService.startService();
+//                EventDecorator.initCookie(cookie);
+            ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
+            ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+
+        } else {
+
+            ClientIdRequestModel clientIdRequestModel = new ClientIdRequestModel();
+            clientIdRequestModel.setAppId("com.aikucun.akapp");
+            clientIdRequestModel.setAppVersion("2.4.8");
+            clientIdRequestModel.setDeviceBrand(Build.BRAND);
+
+            // IMEI
+            if (!TextUtils.isEmpty(getIMEI(app))) {
+
+                clientIdRequestModel.setDeviceIdType(DeviceIdType.IMEI.getTypeName());
+                clientIdRequestModel.setDeviceId(getIMEI(app));
+
+            } else if (!TextUtils.isEmpty(Settings.System.getString(app.getContentResolver(), Settings.System.ANDROID_ID))){
+              // ANDROID_ID
+                String ANDROID_ID = Settings.System.getString(app.getContentResolver(), Settings.System.ANDROID_ID);
+                clientIdRequestModel.setDeviceIdType(DeviceIdType.ANDROID_ID.getTypeName());
+                clientIdRequestModel.setDeviceId(ANDROID_ID);
             } else {
-                com.ccj.client.android.analytics.ENetHelper.create(app, new OnNetResponseListener() {
-                    @Override
-                    public void onPushSuccess() {
-
-                        EPushService.startService();
-
-                        EventDecorator.initCookie(cookie);
-
-                        ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
-                        ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
-
-                    }
-
-                    @Override
-                    public void onPushEorr(int errorCode) {
-                        //.请求成功,返回值错误,根据接口返回值,进行处理.
-                    }
-
-                    @Override
-                    public void onPushFailed() {
-                        //请求失败;不做处理.
-
-                    }
-                }).requestClientId(EConstant.JSON_BODY_1);
-
-
+                clientIdRequestModel.setDeviceIdType(DeviceIdType.NONE.getTypeName());
+                clientIdRequestModel.setDeviceId(DeviceIdType.NONE.getTypeName());
             }
 
+            clientIdRequestModel.setDeviceModel(Build.MODEL);
+            clientIdRequestModel.setDeviceType(isPad(app)?"pad":"phone");
+            clientIdRequestModel.setOsType("android");
+            clientIdRequestModel.setOsVersion( Build.VERSION.RELEASE);
+
+            clientIdRequestModel.setPlatform("android");
+            clientIdRequestModel.setScreenX(app.getResources().getDisplayMetrics().widthPixels);
+            clientIdRequestModel.setScreenY(app.getResources().getDisplayMetrics().heightPixels);
+            clientIdRequestModel.setSdkVersion(BuildConfig.VERSION_NAME);
+//            clientIdRequestModel.setDownload();
 
 
+            requestClientId(clientIdRequestModel.toString());
 
+
+        }
+
+
+    }
+
+    /**
+     * 获取手机IMEI
+     *
+     * @param context
+     * @return
+     */
+    public static final String getIMEI(Context context) {
+
+        String imei = null;
+
+        try {
+            //实例化TelephonyManager对象
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            //获取IMEI号
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                imei = telephonyManager.getDeviceId();
+            }
+
+            //在次做个验证，也不是什么时候都能获取到的啊
+            if (TextUtils.isEmpty(imei)) {
+                imei = "";
+            }
+            return imei;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public static boolean isPad(Context context) {
+        TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        int type = telephony.getPhoneType();
+        boolean isTablet = false;
+        if (type == TelephonyManager.PHONE_TYPE_NONE) {
+            isTablet = true;
+        }
+        return isTablet;
     }
 
 
@@ -316,6 +395,123 @@ public final class JJEventManager {
         }
         return res;
     }
+
+
+    public static void requestClientId(final String jsonBody) {
+
+        queue = EVolley.newRequestQueue(app);
+
+        EGson EGson = new GsonBuilder().disableHtmlEscaping().create();
+
+        Map headers = new HashMap();
+        headers.put("Content-Type", "application/json");
+
+        Map map = new HashMap();
+        map.put("data", jsonBody);
+        ELogger.logWrite(TAG, "push map-->" + map.toString());
+
+
+        EGsonRequest request = new EGsonRequest(Request.Method.POST, EConstant.CLIENT_ID_URL
+                , ClientIdResponseModel.class, headers, null,
+                new Response.Listener<ClientIdResponseModel>() {
+                    @Override
+                    public void onResponse(ClientIdResponseModel response) {
+                        int code = response.getCode();
+                        boolean isSuccess = response.isSuccess();
+                        String clientIdStr = response.getData().getClientId();
+                        String msg = response.getMessage();
+                        ELogger.logWrite(TAG, response.toString());
+
+                        if (isSuccess) {
+                            ELogger.logWrite(TAG, "--获取Client ID 成功--");
+
+                            clientId = clientIdStr;
+
+
+                            if (true == verifyStoragePermissions(app)){
+                                writeClientId2SD(clientId);
+
+                                EPushService.startService();
+//                                EventDecorator.initCookie(cookie);
+                                ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
+                                ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+
+
+
+                            } else {
+
+                            }
+
+
+
+
+                        } else {
+                            ELogger.logWrite(TAG, "--获取Client ID 失败--");
+
+                        }
+
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        ELogger.logWrite(TAG, "--onVolleyError--");
+                    }
+                }
+        ) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    return jsonBody == null ? null : jsonBody.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", jsonBody, "utf-8");
+                    return null;
+                }
+            }
+        };
+
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                30*1000,
+                3,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        queue.add(request);
+
+    }
+
+    private static RequestQueue queue;
+
+    public static boolean verifyStoragePermissions(Context context) {
+        //检测是否有写的权限
+        int permission = ActivityCompat.checkSelfPermission(context,
+                "android.permission.WRITE_EXTERNAL_STORAGE");
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // 没有写的权限，去申请写的权限，会弹出对话框
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private static void writeClientId2SD(String clientId){
+        if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+            File sdCardDir = Environment.getExternalStorageDirectory();//获取SDCard目录
+            File saveFile = new File(sdCardDir , "akc");
+            FileOutputStream outStream = null;
+            try {
+                outStream = new FileOutputStream(saveFile);
+                outStream.write(clientId.getBytes());
+                outStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
 
 
 }

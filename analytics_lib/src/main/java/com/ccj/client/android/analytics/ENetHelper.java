@@ -95,12 +95,17 @@ public class ENetHelper {
         isLoading = true;
 
         EGson EGson = new GsonBuilder().disableHtmlEscaping().create();
+
+        Map headers = new HashMap();
+        headers.put("Content-Type", "application/json");
+
         Map map = new HashMap();
         map.put("list", EGson.toJson(list));
         ELogger.logWrite(TAG, "push map-->" + map.toString());
 
 
-        EGsonRequest request = new EGsonRequest<>(Request.Method.POST, EConstant.COLLECT_URL, ResultBean.class, null, map,//191
+        EGsonRequest request = new EGsonRequest<>(Request.Method.POST
+                , EConstant.COLLECT_URL, ResultBean.class, headers, null,
                 new Response.Listener<ResultBean>() {
                     @Override
                     public void onResponse(ResultBean response) {

@@ -99,12 +99,12 @@ public class MainActivity extends AppCompatActivity {
 //                        .setSidPeriodMinutes(15)//sid改变周期
 //                        .setPushLimitMinutes(1)//多少分钟 push一次
 //                        .setPushLimitNum(10)//多少条 就主动进行push
-                        .setCookieIntercept(new CookieFacade() {
-                            @Override
-                            public String getRequestCookies() { //宿主cookie通用参数 动态插入器(每次上传都会执行该方法)
-                                return "cookie-->"+(++haha);
-                            }
-                        })
+//                        .setCookieIntercept(new CookieFacade() {
+//                            @Override
+//                            public String getRequestCookies() { //宿主cookie通用参数 动态插入器(每次上传都会执行该方法)
+//                                return "cookie-->"+(++haha);
+//                            }
+//                        })
                         .start();//开始*/
 
 

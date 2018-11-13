@@ -1,21 +1,15 @@
 package com.ccj.client.android.analytics;
 
+import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
-import android.arch.lifecycle.Lifecycle.Event;
 import android.util.Log;
 
-import com.ccj.client.android.analytics.net.core.Request;
-import com.ccj.client.android.analytics.net.core.RequestQueue;
-import com.ccj.client.android.analytics.net.core.Response;
-import com.ccj.client.android.analytics.net.core.Tools.EVolley;
-import com.ccj.client.android.analytics.net.core.VolleyError;
 
 import java.util.HashMap;
-import kotlin.jvm.internal.Intrinsics;
-import org.jetbrains.annotations.NotNull;
+
 
 import static com.ccj.client.android.analytics.EConstant.TAG;
 
@@ -71,10 +65,8 @@ public final class LifecycleListener implements LifecycleObserver {
         JJEvent.event("event Lifecycle: Moving to background…", "event ea", "event el");
     }
 
-    public final void setupLifecycleListener(@NotNull LifecycleObserver lifecycleListener) {
-        Intrinsics.checkParameterIsNotNull(lifecycleListener, "lifecycleListener");
+    public final void setupLifecycleListener( LifecycleObserver lifecycleListener) {
         LifecycleOwner lifecycleOwner = ProcessLifecycleOwner.get();
-        Intrinsics.checkExpressionValueIsNotNull(lifecycleOwner, "ProcessLifecycleOwner.get()");
         lifecycleOwner.getLifecycle().addObserver(lifecycleListener);
     }
 }
