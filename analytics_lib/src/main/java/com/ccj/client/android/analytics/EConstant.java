@@ -25,11 +25,11 @@ package com.ccj.client.android.analytics;
      * 接口地址
      */
     static String CLIENT_ID_URL =
-            "http://192.168.120.110:8080/ubt/api/client?appid=28765893&sig=2b4555d0dc9ed905e1802f007bd09e7478114be4&timestamp=1541663667&noncestr=cueedgaq&did=FCE05F90DF99483ABA8AAC9368C3B1BB";
+            "http://192.168.120.110:8080/ubt/api/client";
 
     public static String COLLECT_URL = "http://192.168.120.110:8080/ubt/api/event/list"; //TODO 这里是要上传数据的接口
 
-   static String JSON_BODY_1 = "{\n" +
+   public static String JSON_BODY_1 = "{\n" +
            "\t\"appId\" : \"com.aikucun.apptest\",\n" +
            "    \"appVersion\" : \"2.4.6\",\n" +
            "    \"deviceBrand\" : \"iPhone\",\n" +

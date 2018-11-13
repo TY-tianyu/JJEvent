@@ -2,6 +2,7 @@ package com.ccj.client.android.analytics.bean;
 
 
 import com.ccj.client.android.analytics.EConstant;
+import com.ccj.client.android.analytics.net.gson.EGson;
 
 /**
  * appId : com.aikucun.apptest
@@ -19,7 +20,7 @@ import com.ccj.client.android.analytics.EConstant;
  * screenY : 736
  * sdkVersion : 0.1
  */
-public class ClientIdModel {
+public class ClientIdRequestModel {
 
     private String appId;
     private String appVersion;
@@ -146,5 +147,10 @@ public class ClientIdModel {
 
     public void setSdkVersion(String sdkVersion) {
         this.sdkVersion = sdkVersion;
+    }
+
+    @Override
+    public String toString() {
+        return new EGson().toJson(this);
     }
 }

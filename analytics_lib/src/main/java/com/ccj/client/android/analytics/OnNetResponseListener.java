@@ -4,7 +4,7 @@ package com.ccj.client.android.analytics;
  * Created by chenchangjun on 18/2/9.
  */
 
- interface OnNetResponseListener  {
+ public interface OnNetResponseListener  {
 
     void onPushSuccess();
     void onPushEorr(int errorCode);

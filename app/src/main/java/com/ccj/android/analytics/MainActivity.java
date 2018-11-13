@@ -1,14 +1,20 @@
 package com.ccj.android.analytics;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ccj.client.android.analytics.EConstant;
+import com.ccj.client.android.analytics.ENetHelper;
 import com.ccj.client.android.analytics.JJEvent;
 import com.ccj.client.android.analytics.JJEventManager;
+import com.ccj.client.android.analytics.OnNetResponseListener;
 import com.ccj.client.android.analytics.intercept.CookieFacade;
 
 import java.util.HashMap;
@@ -21,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "TAG";
     TextView tv_show;
-    Button btn_event, btn_pv, btn_cancel, btn_start,btn_push;
+    Button btn_event, btn_pv, btn_cancel, btn_start,btn_push,btn_request_client_id;
     private int i = 0, j = 0;
     int haha=11;
 
@@ -35,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         btn_push=findViewById(R.id.btn_push);
         btn_cancel = findViewById(R.id.btn_cancel);
         btn_start = findViewById(R.id.btn_start);
+        btn_request_client_id = findViewById(R.id.btn_request_client_id);
+
+
+        verifyStoragePermissions(MainActivity.this);
 
 
         /**
@@ -101,6 +111,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btn_request_client_id.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                com.ccj.client.android.analytics.ENetHelper.create(getApplicationContext(), new OnNetResponseListener() {
+            @Override
+            public void onPushSuccess() {
+
+            }
+
+            @Override
+            public void onPushEorr(int errorCode) {
+                //.请求成功,返回值错误,根据接口返回值,进行处理.
+            }
+
+            @Override
+            public void onPushFailed() {
+                //请求失败;不做处理.
+
+            }
+        }).requestClientId(EConstant.JSON_BODY_1);
+            }
+        });
+
 
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,5 +153,26 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE" };
+
+
+    public static void verifyStoragePermissions(Activity activity) {
+
+        try {
+            //检测是否有写的权限
+            int permission = ActivityCompat.checkSelfPermission(activity,
+                    "android.permission.WRITE_EXTERNAL_STORAGE");
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有写的权限，去申请写的权限，会弹出对话框
+                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

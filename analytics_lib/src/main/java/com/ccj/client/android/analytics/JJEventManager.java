@@ -1,12 +1,23 @@
 package com.ccj.client.android.analytics;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.os.Process;
+import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 
 import com.ccj.client.android.analytics.exception.EventException;
 import com.ccj.client.android.analytics.intercept.CookieFacade;
 import com.ccj.client.android.analytics.utils.EDeviceUtils;
+
+import org.apache.http.util.EncodingUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 import static com.ccj.client.android.analytics.EConstant.TAG;
 
@@ -22,6 +33,8 @@ public final class JJEventManager {
 
     private static Application app;//全局持有app,保证sdk正常运转. app引用与进程同生命周期, 即 进程被销毁, jvm会随之销毁,app引用会随之销毁. so不存在内存泄漏.
     protected volatile static boolean hasInit = false;
+
+    protected volatile static String clientId = null;
 
     /**
      * 获取application 上下文
@@ -43,7 +56,7 @@ public final class JJEventManager {
      * @param cookie      宿主app中的通用cookie
      * @param isDebug     是否是debug模式(控制开启log等)
      */
-    public static void init(Application application, String cookie,boolean isDebug) {
+    public static void init(Application application, final String cookie, boolean isDebug) {
 
             if (application==null){
                 ELogger.logWrite(EConstant.TAG, " JJEventManager application==null!");
@@ -72,12 +85,47 @@ public final class JJEventManager {
 
             /****************进行初始化*************************/
             app = application;
-            EPushService.startService();
 
-            EventDecorator.initCookie(cookie);
+            clientId = readClientIdFromSD();
 
-            ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
-            ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+            if (!TextUtils.isEmpty(clientId)) {
+                EPushService.startService();
+
+                EventDecorator.initCookie(cookie);
+
+                ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
+                ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+
+            } else {
+                com.ccj.client.android.analytics.ENetHelper.create(app, new OnNetResponseListener() {
+                    @Override
+                    public void onPushSuccess() {
+
+                        EPushService.startService();
+
+                        EventDecorator.initCookie(cookie);
+
+                        ELogger.logWrite(EConstant.TAG, " JJEventManager run  on thread-->" + Thread.currentThread().getName());
+                        ELogger.logWrite(TAG, "----JJEvent sdk init  success!----");
+
+                    }
+
+                    @Override
+                    public void onPushEorr(int errorCode) {
+                        //.请求成功,返回值错误,根据接口返回值,进行处理.
+                    }
+
+                    @Override
+                    public void onPushFailed() {
+                        //请求失败;不做处理.
+
+                    }
+                }).requestClientId(EConstant.JSON_BODY_1);
+
+
+            }
+
+
 
 
     }
@@ -239,6 +287,34 @@ public final class JJEventManager {
 
             JJEventManager.init(application, cookie, DEVELOP_MODE);
         }
+    }
+
+    //读SD中的文件
+    private static String readClientIdFromSD() {
+        String res="";
+        try{
+
+            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                File sdCardDir = Environment.getExternalStorageDirectory();//获取SDCard目录
+                File saveFile = new File(sdCardDir, "akc");
+
+                FileInputStream fin = new FileInputStream(saveFile);
+
+                int length = fin.available();
+
+                byte[] buffer = new byte[length];
+                fin.read(buffer);
+
+                res = EncodingUtils.getString(buffer, "UTF-8");
+
+                fin.close();
+            }
+        }
+
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return res;
     }
 
 
