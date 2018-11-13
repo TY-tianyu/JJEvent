@@ -15,6 +15,7 @@ import com.ccj.client.android.analytics.ENetHelper;
 import com.ccj.client.android.analytics.JJEvent;
 import com.ccj.client.android.analytics.JJEventManager;
 import com.ccj.client.android.analytics.OnNetResponseListener;
+import com.ccj.client.android.analytics.bean.AkcEventModel;
 import com.ccj.client.android.analytics.intercept.CookieFacade;
 
 import java.util.HashMap;
@@ -55,11 +56,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 for (int k = 1; k <= 5; k++) {
-                    //添加自定义参数ecp,ecp默认为null
-                    Map ecp = new HashMap();
-                    ecp.put("自定义key1", "自定义value1");
-                    ecp.put("自定义key2", "自定义value2");
-                    JJEvent.event("event " + k, "event ea","event el");
+
+                    AkcEventModel akcEventModel = AkcEventModel.makeModel(MainActivity.this);
+                    akcEventModel.setActionType(EConstant.AkcEventType.launch.getType());
+                    JJEvent.event("event " + k, akcEventModel.toString(),"event el");
 
                 }
              /*   //添加自定义参数ecp,ecp默认为null
@@ -108,29 +108,6 @@ public class MainActivity extends AppCompatActivity {
                         .start();//开始*/
 
 
-            }
-        });
-
-        btn_request_client_id.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                com.ccj.client.android.analytics.ENetHelper.create(getApplicationContext(), new OnNetResponseListener() {
-            @Override
-            public void onPushSuccess() {
-
-            }
-
-            @Override
-            public void onPushEorr(int errorCode) {
-                //.请求成功,返回值错误,根据接口返回值,进行处理.
-            }
-
-            @Override
-            public void onPushFailed() {
-                //请求失败;不做处理.
-
-            }
-        }).requestClientId(EConstant.JSON_BODY_1);
             }
         });
 

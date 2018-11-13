@@ -1,6 +1,20 @@
 package com.ccj.client.android.analytics.bean;
 
 
+import android.content.Context;
+import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
+
+import com.ccj.client.android.analyticlib.BuildConfig;
+import com.ccj.client.android.analytics.EConstant;
+import com.ccj.client.android.analytics.JJEventManager;
+import com.ccj.client.android.analytics.enums.DeviceIdType;
+import com.ccj.client.android.analytics.net.gson.EGson;
+
+import static com.ccj.client.android.analytics.JJEventManager.getIMEI;
+import static com.ccj.client.android.analytics.NetWorkUtils.getAPNTypeName;
+
 /**
  * clientId : clientId，必须
  * spm : 事件编号，按照appId.页面.模块.子模块1.子模块2定义，如果没有5级，则后面的部分省略，例如只有三级，格式为1.10.123
@@ -32,6 +46,51 @@ package com.ccj.client.android.analytics.bean;
  * sdkVersion : sdk版本，如1.0.0
  */
 public class AkcEventModel {
+
+
+    public static AkcEventModel makeModel(Context app){
+        AkcEventModel model = new AkcEventModel();
+
+//        model.setActionType(EConstant.AkcEventType.);
+
+//        model.setDownload();
+
+        model.setClientId(JJEventManager.getClientId());
+        model.setClientTs(System.currentTimeMillis());
+//        model.setMi();
+        model.setNetwork(getAPNTypeName(app));
+//        model.setCarrier();
+        model.setOrientation(0);
+        model.setLogType("user");
+
+        model.setAppVersion("2.4.8");
+
+        // IMEI
+        if (!TextUtils.isEmpty(getIMEI(app))) {
+
+            model.setDeviceIdType(DeviceIdType.IMEI.getTypeName());
+            model.setDeviceId(getIMEI(app));
+
+        } else if (!TextUtils.isEmpty(Settings.System.getString(app.getContentResolver(), Settings.System.ANDROID_ID))){
+            // ANDROID_ID
+            String ANDROID_ID = Settings.System.getString(app.getContentResolver(), Settings.System.ANDROID_ID);
+            model.setDeviceIdType(DeviceIdType.ANDROID_ID.getTypeName());
+            model.setDeviceId(ANDROID_ID);
+        } else {
+            model.setDeviceIdType(DeviceIdType.NONE.getTypeName());
+            model.setDeviceId(DeviceIdType.NONE.getTypeName());
+        }
+
+        model.setOsVersion( Build.VERSION.RELEASE);
+
+        model.setPlatform("android");
+        model.setSdkVersion(BuildConfig.VERSION_NAME);
+
+        model.setMainProperties(new MainPropertiesBean());
+        model.setCurrentProperties(new CurrentPropertiesBean());
+
+        return model;
+    }
 
     private String clientId;
     private String spm;
@@ -316,5 +375,10 @@ public class AkcEventModel {
         public void setKey(String key) {
             this.key = key;
         }
+    }
+
+    @Override
+    public String toString() {
+        return new EGson().toJson(this);
     }
 }

@@ -183,7 +183,7 @@ public final class JJEventManager {
             //实例化TelephonyManager对象
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             //获取IMEI号
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                 imei = telephonyManager.getDeviceId();
             }
 
@@ -405,10 +405,6 @@ public final class JJEventManager {
 
         Map headers = new HashMap();
         headers.put("Content-Type", "application/json");
-
-        Map map = new HashMap();
-        map.put("data", jsonBody);
-        ELogger.logWrite(TAG, "push map-->" + map.toString());
 
 
         EGsonRequest request = new EGsonRequest(Request.Method.POST, EConstant.CLIENT_ID_URL

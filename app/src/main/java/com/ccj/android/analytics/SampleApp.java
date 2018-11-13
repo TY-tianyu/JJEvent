@@ -20,7 +20,7 @@ public class SampleApp extends Application implements LifecycleOwner{
     public void onCreate() {
         super.onCreate();
 
-        sampleLifecycleListener = new LifecycleListener();
+        sampleLifecycleListener = new LifecycleListener(getApplicationContext());
 
         sampleLifecycleListener.setupLifecycleListener(sampleLifecycleListener);
 
