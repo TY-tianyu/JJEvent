@@ -7,13 +7,14 @@ import android.arch.lifecycle.LifecycleRegistry;
 import android.support.annotation.NonNull;
 
 import com.ccj.client.android.analytics.LifecycleListener;
+
+import static com.ccj.client.android.analytics.LifecycleListener.setupLifecycleListener;
 //import com.ccj.client.android.analytics.SampleLifecycleListener;
 
-public class SampleApp extends Application implements LifecycleOwner{
+public class SampleApp extends Application {
 
     private LifecycleListener sampleLifecycleListener;
 
-    private LifecycleRegistry mLifecycleRegistry;
 
 
     @Override
@@ -22,12 +23,8 @@ public class SampleApp extends Application implements LifecycleOwner{
 
         sampleLifecycleListener = new LifecycleListener(getApplicationContext());
 
-        sampleLifecycleListener.setupLifecycleListener(sampleLifecycleListener);
+        setupLifecycleListener(sampleLifecycleListener);
 
-//        mLifecycleRegistry = new LifecycleRegistry(this);
-//        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
-//
-//        this.getLifecycle().addObserver(new LifecycleListener());
 
     }
 
@@ -36,9 +33,4 @@ public class SampleApp extends Application implements LifecycleOwner{
         super.onTerminate();
     }
 
-    @NonNull
-    @Override
-    public Lifecycle getLifecycle() {
-        return mLifecycleRegistry;
-    }
 }

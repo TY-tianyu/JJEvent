@@ -327,10 +327,10 @@ public final class JJEventManager {
          * @param url
          * @return
          */
-        public  Builder setPushUrl(String   url) {
-            EConstant. COLLECT_URL = url;
-            return this;
-        }
+//        public  Builder setPushUrl(String   url) {
+//            EConstant.COLLECT_URL = url;
+//            return this;
+//        }
         /**
          * cookie 动态注入接口
          * @param cookieIntercept

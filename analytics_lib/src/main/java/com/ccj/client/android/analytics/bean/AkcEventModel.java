@@ -1,9 +1,13 @@
 package com.ccj.client.android.analytics.bean;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.ccj.client.android.analyticlib.BuildConfig;
@@ -59,7 +63,7 @@ public class AkcEventModel {
         model.setClientTs(System.currentTimeMillis());
 //        model.setMi();
         model.setNetwork(getAPNTypeName(app));
-//        model.setCarrier();
+        model.setCarrier(getOperators(app));
         model.setOrientation(0);
         model.setLogType("user");
 
@@ -90,6 +94,40 @@ public class AkcEventModel {
         model.setCurrentProperties(new CurrentPropertiesBean());
 
         return model;
+    }
+
+
+    /**
+     * 返回运营商 需要加入权限 <uses-permission android:name="android.permission.READ_PHONE_STATE"/> <BR>
+     *
+     * @return 1, 代表中国移动，2，代表中国联通，3，代表中国电信，0，代表未知
+     * @author youzc@yiche.com
+     */
+    public static String getOperators(Context context) {
+        // 移动设备网络代码（英语：Mobile Network Code，MNC）是与移动设备国家代码（Mobile Country Code，MCC）（也称为“MCC /
+        // MNC”）相结合, 例如46000，前三位是MCC，后两位是MNC 获取手机服务商信息
+        String OperatorsName = "";
+        String IMSI = "";
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+
+            IMSI = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getSubscriberId();
+
+        }
+        // IMSI号前面3位460是国家，紧接着后面2位00 运营商代码
+        System.out.println(IMSI);
+
+        if (TextUtils.isEmpty(IMSI)) {
+            return "";
+        }
+
+        if (IMSI.startsWith("46000") || IMSI.startsWith("46002") || IMSI.startsWith("46007")) {
+            OperatorsName = "移动";
+        } else if (IMSI.startsWith("46001") || IMSI.startsWith("46006")) {
+            OperatorsName = "联通";
+        } else if (IMSI.startsWith("46003") || IMSI.startsWith("46005")) {
+            OperatorsName = "电信";
+        }
+        return OperatorsName;
     }
 
     private String clientId;

@@ -8,13 +8,8 @@ import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.util.Log;
 
-
 import com.ccj.client.android.analytics.bean.AkcEventModel;
-import com.ccj.client.android.analytics.net.gson.EGson;
-import com.ccj.client.android.analytics.net.gson.GsonBuilder;
-
-import java.util.HashMap;
-
+import com.ccj.client.android.analytics.enums.AkcEventType;
 
 import static com.ccj.client.android.analytics.EConstant.TAG;
 
@@ -30,11 +25,8 @@ public final class LifecycleListener implements LifecycleObserver {
     @OnLifecycleEvent(Event.ON_CREATE)
     public final void onAppCreate() {
         Log.d(TAG, "Lifecycle: onAppCreate…");
-
-
         AkcEventModel akcEventModel = AkcEventModel.makeModel(context);
-        akcEventModel.setActionType(EConstant.AkcEventType.launch.getType());
-
+        akcEventModel.setActionType(AkcEventType.launch.getType());
         JJEvent.event("event Lifecycle: onAppCreate…", akcEventModel.toString(), "event el");
 
 
@@ -44,7 +36,7 @@ public final class LifecycleListener implements LifecycleObserver {
     public final void onMoveToForeground() {
         Log.d(TAG, "Lifecycle: Returning to foreground…");
         AkcEventModel akcEventModel = AkcEventModel.makeModel(context);
-        akcEventModel.setActionType(EConstant.AkcEventType.active.getType());
+        akcEventModel.setActionType(AkcEventType.active.getType());
         JJEvent.event("event Lifecycle: Returning to foreground…", akcEventModel.toString(), "event el");
     }
 
@@ -52,7 +44,7 @@ public final class LifecycleListener implements LifecycleObserver {
     public final void onMoveToBackground() {
         Log.d(TAG, "Lifecycle: Moving to background…");
         AkcEventModel akcEventModel = AkcEventModel.makeModel(context);
-        akcEventModel.setActionType(EConstant.AkcEventType.deactive.getType());
+        akcEventModel.setActionType(AkcEventType.deactive.getType());
         JJEvent.event("event Lifecycle: Moving to background…", akcEventModel.toString(), "event el");
     }
 
