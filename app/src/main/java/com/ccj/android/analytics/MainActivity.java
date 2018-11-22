@@ -10,18 +10,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ccj.client.android.analytics.EConstant;
-import com.ccj.client.android.analytics.ENetHelper;
-import com.ccj.client.android.analytics.JJEvent;
-import com.ccj.client.android.analytics.JJEventManager;
-import com.ccj.client.android.analytics.OnNetResponseListener;
+import com.ccj.client.android.analytics.Event;
+import com.ccj.client.android.analytics.EventManager;
 import com.ccj.client.android.analytics.bean.AkcEventModel;
-import com.ccj.client.android.analytics.intercept.CookieFacade;
+import com.ccj.client.android.analytics.enums.AkcEventType;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.ccj.client.android.analytics.EConstant.COLLECT_URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int k = 1; k <= 5; k++) {
 
                     AkcEventModel akcEventModel = AkcEventModel.makeModel(MainActivity.this);
-                    akcEventModel.setActionType(EConstant.AkcEventType.launch.getType());
-                    JJEvent.event("event " + k, akcEventModel.toString(),"event el");
+                    akcEventModel.setActionType(AkcEventType.launch.getType());
+                    Event.event("event " + k, akcEventModel.toString(),"event el");
 
                 }
              /*   //添加自定义参数ecp,ecp默认为null
@@ -80,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 Map ecp = new HashMap();
                 ecp.put("自定义key1", "自定义value1");
                 ecp.put("自定义key2", "自定义value2");
-                JJEvent.expose("ss1", "首页", "点击" + "button" + (++i), ecp);
-                JJEventManager.pushEvent();
+                Event.expose("ss1", "首页", "点击" + "button" + (++i), ecp);
+                EventManager.pushEvent();
             }
         });
 
@@ -92,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
                 //JJEventManager.init(getApplication(), "第二次cookie", "dt", "cid", true); //方式1
 
 
-                JJEventManager.Builder builder = new JJEventManager.Builder(getApplication()); //方式2
-                builder.setPushUrl(COLLECT_URL)//TODO 必填!!!!!!
+                EventManager.Builder builder = new EventManager.Builder(getApplication()); //方式2
+                builder
+                        .setApiHost(BuildConfig.UBT_API_HOST)
+                        .setAppVersion(BuildConfig.VERSION_NAME)
                         .setHostCookie("s test=cookie String;")//cookie(只会初始化调用一次,后续上传不会再调用)
                         .setDebug(true)//是否是debug
 //                        .setSidPeriodMinutes(15)//sid改变周期
@@ -115,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JJEventManager.destoryEventService();
+                EventManager.destoryEventService();
                 // EDBHelper.deleteEventListByLimit(0, 1);
                 // ELogger.logWrite(TAG, "getEventListByRows-->" + EDBHelper.getEventRowCount());
             }
@@ -124,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         btn_push.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JJEventManager.pushEvent();
+                EventManager.pushEvent();
                 Toast.makeText(MainActivity.this,"saefsdfasdf-->"+i,Toast.LENGTH_SHORT).show();
             }
         });

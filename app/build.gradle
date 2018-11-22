@@ -10,6 +10,11 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+
+        //用户行为跟踪 UBT
+        buildConfigField "String", "UBT_API_HOST", '"http://172.19.3.63:8080"'
+
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -18,6 +23,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+//    productFlavors {
+//        check {
+//            //用户行为跟踪 UBT
+//            buildConfigField "String", "UBT_API_HOST", '"http://172.19.3.63:8080"'
+//        }
+//
+//        product {
+//            //用户行为跟踪 UBT
+//            buildConfigField "String", "UBT_API_HOST", '"http://172.19.3.63:8080"'
+//        }
+//    }
+
 }
 
 dependencies {
@@ -28,7 +46,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation project(path: ':analytics_lib')
+    implementation project(path: ':lib-tracker')
 
 
 }
