@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.ccj.client.android.analytics.bean.EventBean;
-import com.ccj.client.android.analytics.db.EFinalDb;
+import com.ccj.client.android.analytics.db.FinalDb;
 
 import java.util.List;
 
@@ -19,12 +19,12 @@ import java.util.List;
  */
  class DBHelper {
 
-    private static final EFinalDb db;
+    private static final FinalDb db;
 
    // SQLite 采用串行模型，所有线程都公用同一个数据库连接。
     static {
-        db = EFinalDb.create(EventManager.getContext(), Constant.DB_NAME, false, Constant.DB_VERSION,
-                new EFinalDb.DbUpdateListener() {
+        db = FinalDb.create(EventManager.getContext(), Constant.DB_NAME, false, Constant.DB_VERSION,
+                new FinalDb.DbUpdateListener() {
                     @Override
                     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
                         Cursor cursor = db.rawQuery(

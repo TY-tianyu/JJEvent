@@ -41,16 +41,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public class EFinalDb {
+public class FinalDb {
 
     private static final String TAG = "EFinalDb";
 
-    private static HashMap<String, EFinalDb> daoMap = new HashMap<String, EFinalDb>();
+    private static HashMap<String, FinalDb> daoMap = new HashMap<String, FinalDb>();
 
     private SQLiteDatabase db;
     private DaoConfig config;
 
-    private EFinalDb(DaoConfig config) {
+    private FinalDb(DaoConfig config) {
         if (config == null)
             throw new DbException("daoConfig is null");
         if (config.getContext() == null)
@@ -68,10 +68,10 @@ public class EFinalDb {
         this.config = config;
     }
 
-    private synchronized static EFinalDb getInstance(DaoConfig daoConfig) {
-        EFinalDb dao = daoMap.get(daoConfig.getDbName());
+    private synchronized static FinalDb getInstance(DaoConfig daoConfig) {
+        FinalDb dao = daoMap.get(daoConfig.getDbName());
         if (dao == null) {
-            dao = new EFinalDb(daoConfig);
+            dao = new FinalDb(daoConfig);
             daoMap.put(daoConfig.getDbName(), dao);
         }
         return dao;
@@ -82,7 +82,7 @@ public class EFinalDb {
      *
      * @param context
      */
-    public static EFinalDb create(Context context) {
+    public static FinalDb create(Context context) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         return create(config);
@@ -95,7 +95,7 @@ public class EFinalDb {
      * @param isDebug
      *            是否是debug模式（debug模式进行数据库操作的时候将会打印sql语句）
      */
-    public static EFinalDb create(Context context, boolean isDebug) {
+    public static FinalDb create(Context context, boolean isDebug) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setDebug(isDebug);
@@ -110,7 +110,7 @@ public class EFinalDb {
      * @param dbName
      *            数据库名称
      */
-    public static EFinalDb create(Context context, String dbName) {
+    public static FinalDb create(Context context, String dbName) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setDbName(dbName);
@@ -126,7 +126,7 @@ public class EFinalDb {
      * @param isDebug
      *            是否为debug模式（debug模式进行数据库操作的时候将会打印sql语句）
      */
-    public static EFinalDb create(Context context, String dbName, boolean isDebug) {
+    public static FinalDb create(Context context, String dbName, boolean isDebug) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setDbName(dbName);
@@ -141,8 +141,8 @@ public class EFinalDb {
      * @param dbName
      *            数据库名称
      */
-    public static EFinalDb create(Context context, String targetDirectory,
-                                  String dbName) {
+    public static FinalDb create(Context context, String targetDirectory,
+                                 String dbName) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setDbName(dbName);
@@ -159,8 +159,8 @@ public class EFinalDb {
      * @param isDebug
      *            是否为debug模式（debug模式进行数据库操作的时候将会打印sql语句）
      */
-    public static EFinalDb create(Context context, String targetDirectory,
-                                  String dbName, boolean isDebug) {
+    public static FinalDb create(Context context, String targetDirectory,
+                                 String dbName, boolean isDebug) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setTargetDirectory(targetDirectory);
@@ -184,8 +184,8 @@ public class EFinalDb {
      *            数据库升级监听器：如果监听器为null，升级的时候将会清空所所有的数据
      * @return
      */
-    public static EFinalDb create(Context context, String dbName,
-                                  boolean isDebug, int dbVersion, DbUpdateListener dbUpdateListener) {
+    public static FinalDb create(Context context, String dbName,
+                                 boolean isDebug, int dbVersion, DbUpdateListener dbUpdateListener) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setDbName(dbName);
@@ -211,9 +211,9 @@ public class EFinalDb {
      *            ：如果监听器为null，升级的时候将会清空所所有的数据
      * @return
      */
-    public static EFinalDb create(Context context, String targetDirectory,
-                                  String dbName, boolean isDebug, int dbVersion,
-                                  DbUpdateListener dbUpdateListener) {
+    public static FinalDb create(Context context, String targetDirectory,
+                                 String dbName, boolean isDebug, int dbVersion,
+                                 DbUpdateListener dbUpdateListener) {
         DaoConfig config = new DaoConfig();
         config.setContext(context);
         config.setTargetDirectory(targetDirectory);
@@ -230,7 +230,7 @@ public class EFinalDb {
      * @param daoConfig
      * @return
      */
-    public static EFinalDb create(DaoConfig daoConfig) {
+    public static FinalDb create(DaoConfig daoConfig) {
         return getInstance(daoConfig);
     }
 

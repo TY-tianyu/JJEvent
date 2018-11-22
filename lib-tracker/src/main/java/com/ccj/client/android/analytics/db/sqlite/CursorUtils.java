@@ -17,7 +17,7 @@ package com.ccj.client.android.analytics.db.sqlite;
 
 import android.database.Cursor;
 
-import com.ccj.client.android.analytics.db.EFinalDb;
+import com.ccj.client.android.analytics.db.FinalDb;
 import com.ccj.client.android.analytics.db.table.ManyToOne;
 import com.ccj.client.android.analytics.db.table.OneToMany;
 import com.ccj.client.android.analytics.db.table.Property;
@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 
 public class CursorUtils {
 
-	public static <T> T getEntity(Cursor cursor, Class<T> clazz, EFinalDb db){
+	public static <T> T getEntity(Cursor cursor, Class<T> clazz, FinalDb db){
 		try {
 			if(cursor!=null ){
 				TableInfo table = TableInfo.get(clazz);

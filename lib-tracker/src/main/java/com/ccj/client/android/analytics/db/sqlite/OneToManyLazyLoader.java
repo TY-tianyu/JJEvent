@@ -1,7 +1,7 @@
 package com.ccj.client.android.analytics.db.sqlite;
 
 
-import com.ccj.client.android.analytics.db.EFinalDb;
+import com.ccj.client.android.analytics.db.FinalDb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +17,8 @@ public class OneToManyLazyLoader<O,M> {
     O ownerEntity;
     Class<O> ownerClazz;
     Class<M> listItemClazz;
-    EFinalDb db;
-    public OneToManyLazyLoader(O ownerEntity, Class<O> ownerClazz, Class<M> listItemclazz, EFinalDb db){
+    FinalDb db;
+    public OneToManyLazyLoader(O ownerEntity, Class<O> ownerClazz, Class<M> listItemclazz, FinalDb db){
         this.ownerEntity = ownerEntity;
         this.ownerClazz = ownerClazz;
         this.listItemClazz = listItemclazz;

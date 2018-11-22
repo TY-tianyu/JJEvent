@@ -1,7 +1,7 @@
 package com.ccj.client.android.analytics.db.sqlite;
 
 
-import com.ccj.client.android.analytics.db.EFinalDb;
+import com.ccj.client.android.analytics.db.FinalDb;
 
 /**
  *
@@ -14,12 +14,12 @@ public class ManyToOneLazyLoader<M,O> {
     M manyEntity;
     Class<M> manyClazz;
     Class<O> oneClazz;
-    EFinalDb db;
+    FinalDb db;
     /**
      * 用于
      */
     private Object fieldValue;
-    public ManyToOneLazyLoader(M manyEntity, Class<M> manyClazz, Class<O> oneClazz, EFinalDb db){
+    public ManyToOneLazyLoader(M manyEntity, Class<M> manyClazz, Class<O> oneClazz, FinalDb db){
         this.manyEntity = manyEntity;
         this.manyClazz = manyClazz;
         this.oneClazz = oneClazz;
